@@ -1,4 +1,4 @@
-const dotenv = require('dotenv').config()
+require('dotenv').config()
 
 const {CONNECTION_STRING} = process.env
 
@@ -28,13 +28,8 @@ module.exports = {
                 city_id SERIAL PRIMARY KEY,
                 name VARCHAR(56),
                 rating INT,
-                country_id INT FOREIGN KEY REFERENCES countries(country_id)
+                country_id INT NOT NULL REFERENCES countries(country_id)
             );
-
-            INSERT INTO cities (name, rating, country_id)
-            VALUES ('La Cruz', 5, 40)
-            ('Buenaventura', 5, 37)
-            ('Copenhagen', 5, 46)
 
             insert into countries (name)
             values ('Afghanistan'),
@@ -232,6 +227,12 @@ module.exports = {
             ('Yemen'),
             ('Zambia'),
             ('Zimbabwe');
+
+            INSERT INTO cities (name, rating, country_id)
+            VALUES ('La Cruz', 5, 40),
+            ('Buenaventura', 5, 37),
+            ('Copenhagen', 5, 46);
+
         `).then(() => {
             // setTimeout(()=>{}, 1000);
             console.log('DB seeded!')
@@ -242,7 +243,8 @@ module.exports = {
     getCountries: (req, res) => {
         sequelize.query(`
             SELECT *
-            FROM countries`)
+            FROM countries
+            `)
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
     },
@@ -251,7 +253,7 @@ module.exports = {
         const {name, rating, countryId} = req.body
         sequelize.query(`
             INSERT INTO cities (name, rating, country_id)
-            VALUES (${name}, ${rating}, ${countryId})
+            VALUES ('${name}', ${rating}, ${countryId})
         `)
         .then(dbRes => res.status(200).send(dbRes[0]))
         .catch(err => console.log(err))
@@ -262,7 +264,7 @@ module.exports = {
             SELECT city.city_id, country.country_id
             FROM cities AS city
             JOIN countries AS country
-            ON city.country_id = country.country_id
+            ON country.country_id = city.country_id
             ORDER BY rating DESC
             `)
         .then (dbRes => res.status(200).send(dbRes[0]))
