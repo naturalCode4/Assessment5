@@ -7,6 +7,10 @@ const {seed, getCountries, getCities, createCity, deleteCity} = require('./contr
 
 app.use(express.json())
 app.use(cors())
+app.use((req, res, next) => {
+    console.log('request received for:', req.method, req.originalUrl)
+    next()
+})
 
 // DEV
 // app.post('/seed', seed)
